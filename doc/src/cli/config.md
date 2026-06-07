@@ -252,6 +252,18 @@ URL of the Bitbucket instance used for Bitbucket requests.
 Defaults to `$BITBUCKET_URL` if set,
 or `https://bitbucket.org` otherwise.
 
+### spice.forge.bitbucket-server.apiURL
+
+URL at which the Bitbucket Data Center API is available.
+Defaults to `$BITBUCKET_SERVER_API_URL` if set,
+or the Bitbucket Data Center URL with `/rest/api/1.0` appended otherwise.
+
+### spice.forge.bitbucket-server.url
+
+URL of the self-hosted Bitbucket Data Center instance
+used for Bitbucket Data Center requests.
+Defaults to `$BITBUCKET_SERVER_URL` if set.
+
 ### spice.forge.gitlab.url
 
 <!-- gs:version v0.9.0 -->

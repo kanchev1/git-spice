@@ -12,9 +12,11 @@ However, once you want to push or pull changes to/from a remote repository,
 you will need to authenticate with the respective service.
 
 This page covers methods to authenticate git-spice
-with GitHub, GitLab, and Bitbucket Cloud.
+with GitHub, GitLab, Bitbucket Cloud,
+and self-hosted Bitbucket Data Center / Server.
 Note that GitLab support requires at least version <!-- gs:version v0.9.0 -->.
 Bitbucket Cloud support requires at least version <!-- gs:version v0.25.0 -->.
+Bitbucket Data Center / Server support requires at least version <!-- gs:version unreleased -->.
 
 ## Logging in
 
@@ -48,9 +50,9 @@ Each supported service supports different authentication methods.
 - [OAuth](#oauth): <!-- gs:badge:github --> <!-- gs:badge:gitlab -->
 - [GitHub App](#github-app): <!-- gs:badge:github -->
 - [Git Credential Manager](#git-credential-manager): <!-- gs:badge:github --> <!-- gs:badge:bitbucket -->
-- [Personal Access Token](#personal-access-token): <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket -->
+- [Personal Access Token](#personal-access-token): <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket --> <!-- gs:badge:bitbucket-server -->
 - [Service CLI](#service-cli): <!-- gs:badge:github --> <!-- gs:badge:gitlab -->
-- [Environment variable](#environment-variable): <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket -->
+- [Environment variable](#environment-variable): <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket --> <!-- gs:badge:bitbucket-server -->
 
 Read on for more details on each method,
 or skip on to [Pick an authentication method](#picking-an-authentication-method).
@@ -179,7 +181,7 @@ After that, git-spice will use the stored OAuth token automatically.
 
 ### Personal Access Token
 
-**Supported by** <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket -->
+**Supported by** <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket --> <!-- gs:badge:bitbucket-server -->
 
 To use a Personal Access Token with git-spice,
 you will generate a Personal Access Token on the website
@@ -277,6 +279,27 @@ Select an authentication method: {red}Personal Access Token{reset}
     {green}INF{reset} bitbucket: successfully logged in
     ```
 
+=== "<!-- gs:bitbucket-server -->"
+
+    Bitbucket Data Center / Server uses a Personal Access Token
+    (an HTTP access token) as its only authentication method.
+    Before logging in, tell git-spice the address of your instance
+    (see [Self-hosted instances](#bitbucket-data-center-server) below).
+
+    1. Go to your instance's
+       *HTTP access tokens* page under your account settings,
+       typically at `<instance-url>/plugins/servlet/access-tokens/manage`.
+    2. Create a token with **Repository Write** permission.
+    3. Copy the generated token.
+
+    Then log in, specifying the forge explicitly:
+
+    ```freeze language="terminal"
+    {green}${reset} gs auth login {green}--forge {red}bitbucket-server{reset}
+    {green}Enter HTTP access token{reset}:
+    {green}INF{reset} bitbucket-server: successfully logged in
+    ```
+
 After you have a token, enter it into the prompt.
 
 ### Service CLI
@@ -309,7 +332,7 @@ git-spice will request a token from the CLI as needed.
 
 ### Environment variable
 
-**Supported by** <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket -->
+**Supported by** <!-- gs:badge:github --> <!-- gs:badge:gitlab --> <!-- gs:badge:bitbucket --> <!-- gs:badge:bitbucket-server -->
 
 You can provide the authentication token as an environment variable.
 This is not recommended as a primary authentication method,
@@ -327,6 +350,12 @@ but it can be useful in CI/CD environments.
 
     Set the `BITBUCKET_TOKEN` environment variable to your OAuth token.
     This should be a Bearer token (OAuth access token).
+
+=== "<!-- gs:bitbucket-server -->"
+
+    Set the `BITBUCKET_SERVER_TOKEN` environment variable
+    to your HTTP access token (Personal Access Token).
+    This is sent as a Bearer token.
 
 If you have the environment variable set,
 this takes precedence over all other authentication methods.
@@ -383,6 +412,12 @@ The $$gs auth login$$ operation will always fail if you use this method.
     This is convenient if you already have GCM installed for git operations.
 
     [Personal Access Token](#personal-access-token) is flexible and secure.
+    It requires manual token management but works without additional tools.
+
+=== "<!-- gs:bitbucket-server -->"
+
+    [Personal Access Token](#personal-access-token) is the only
+    interactive authentication method for Bitbucket Data Center / Server.
     It requires manual token management but works without additional tools.
 
 [Environment variable](#environment-variable) is the least convenient
@@ -509,6 +544,37 @@ export GITLAB_OAUTH_CLIENT_ID=your-client-id
 ```
 
 Authenticate with $$gs auth login$$ as usual after that.
+
+### Bitbucket Data Center / Server
+
+<!-- gs:version unreleased -->
+
+Bitbucket Data Center / Server is always self-hosted,
+so git-spice needs to know the address of your instance.
+Set $$spice.forge.bitbucket-server.url$$
+to the address of your instance in the repository
+you want to use git-spice with.
+
+```freeze language="terminal"
+{green}${reset} git config {red}spice.forge.bitbucket-server.url{reset} {mag}https://bitbucket.example.com{reset}
+```
+
+The API URL is derived from this value automatically
+as `/rest/api/1.0` under the instance URL.
+*Optionally*, override it with the
+$$spice.forge.bitbucket-server.apiURL$$ configuration option.
+
+```freeze language="terminal"
+{green}${reset} git config {red}spice.forge.bitbucket-server.apiURL{reset} {mag}https://bitbucket.example.com/rest/api/1.0{reset}
+```
+
+After the instance URL is set,
+authenticate with a [Personal Access Token](#personal-access-token),
+specifying the forge explicitly:
+
+```freeze language="terminal"
+{green}${reset} gs auth login {green}--forge {red}bitbucket-server{reset}
+```
 
 ## Safety
 
